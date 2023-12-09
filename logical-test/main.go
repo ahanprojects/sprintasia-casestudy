@@ -68,3 +68,5 @@ func main() {
 
 	fmt.Println(gradingStudents(grades))
 }
+
+// Execute with command: "go run main.go" from the "logical-test" folder
