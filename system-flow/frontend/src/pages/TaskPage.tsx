@@ -19,6 +19,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import Loader from "../components/Loader";
 import { Task } from "../types/types";
 import { APIURL } from "../config/config";
+import { z } from "zod";
 
 export default function TaskPage() {
   const [data, setData] = useState<Task[]>([]);
@@ -34,6 +35,7 @@ export default function TaskPage() {
   // Form States
   const taskId = useRef<number | null>(null);
   const [formTitle, setFormTitle] = useState("New Task");
+  const [formError, setFormError] = useState<string | null>(null);
   const [nameValue, setNameValue] = useState("");
   const [dateValue, setDateValue] = useState("");
 
@@ -88,6 +90,7 @@ export default function TaskPage() {
     dialogTrigger.current = null;
     setNameValue("");
     setDateValue("");
+    setFormError(null)
     dialogRef.current?.close();
   }
 
@@ -136,6 +139,19 @@ export default function TaskPage() {
       parent_id: dialogTrigger.current == "newsubtask" ? taskId.current : null,
     };
 
+    // Validate
+    const schema = z.object({
+      name: z.string().min(1),
+      due: z.date(),
+      parent_id: z.number().int().optional().nullable()
+    })
+
+    const validation = schema.safeParse(data)
+    if (!validation.success) {
+      setFormError("Data is not valid")
+      return
+    }
+
     doFetch(url, method, data);
     closeModal();
   }
@@ -153,6 +169,7 @@ export default function TaskPage() {
       <dialog className="bg-white shadow-lg rounded-lg" ref={dialogRef}>
         <TaskForm
           title={formTitle}
+          error={formError}
           onCancel={closeModal}
           onSave={saveTask}
           nameValue={nameValue}
@@ -384,6 +401,7 @@ function TaskForm({
   onDateChange,
   onCancel,
   onSave,
+  error,
 }: {
   title: string;
   nameValue: string;
@@ -392,6 +410,7 @@ function TaskForm({
   onDateChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onCancel: () => void;
   onSave: () => void;
+  error: string | null
 }) {
   return (
     <div className="m-8 space-y-4">
@@ -411,6 +430,7 @@ function TaskForm({
         placeholder="Describe your task"
         onChange={onDateChange}
       />
+      { error && <p className="text-red-600 font-medium p-2 text-center">{error}</p> }
       <div className="flex gap-1 justify-end pt-4">
         <button
           onClick={onCancel}
