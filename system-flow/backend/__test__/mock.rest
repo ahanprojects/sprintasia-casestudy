@@ -1,15 +1,46 @@
 @host = http://localhost:3001
-###ZDdSdds
+### All active task
 GET {{host}}/tasks?completed=false HTTP/1.1
 
-###
+### All completed task
+GET {{host}}/tasks?completed=true HTTP/1.1
 
+### Create Task
 POST {{host}}/tasks HTTP/1.1
 content-type: application/json
 
 {
-    "name": "Subtask 13",
-    "due": "0001-01-01T00:00:00Z",
-    "status": false,
-    "parent_id": 14
+    "name": "Task 5",
+    "due": "0001-01-01T00:00:00Z"
 }
+
+### Create Nested Task (add parent id)
+POST {{host}}/tasks HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Subtask 11",
+    "due": "0001-01-01T00:00:00Z",
+    "parent_id": 24
+}
+
+### Edit Task Detail
+PATCH {{host}}/tasks/23 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Subtask XeeeX",
+    "due": "0001-01-01T00:00:00Z"
+}
+
+### Complete a task
+PATCH {{host}}/tasks/23 HTTP/1.1
+content-type: application/json
+
+{
+    "completed": true
+}
+
+### DELETE a task
+DELETE {{host}}/tasks/23 HTTP/1.1
+content-type: application/json

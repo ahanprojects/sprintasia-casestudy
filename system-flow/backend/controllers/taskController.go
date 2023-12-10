@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	// "encoding/json"
-	// "fmt"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -30,20 +28,18 @@ func GetTasks(c *gin.Context) {
 		models.Task
 		Subtasks string `json:"subtasks"`
 	}
-
 	var rawTasks []RawTask
 
 	if err := initializers.DB.Raw(`
-		SELECT 
-		t.*,
-		jsonb_agg(sub.*) subtasks
+		SELECT t.*,
+		COALESCE(NULLIF(jsonb_agg(sub.*), '[null]'::JSONB), '[]'::JSONB) subtasks
 		FROM tasks t
 		LEFT JOIN tasks sub ON t.id = sub.parent_id
-		WHERE t.parent_id IS null
-		AND	t.completed = ?
-		AND t.deleted_at is null 
-		AND sub.deleted_at is null
-		group by t.id
+		WHERE t.parent_id IS NULL
+		AND t.completed = ?
+		AND t.deleted_at IS NULL
+		AND sub.deleted_at IS NULL
+		GROUP BY t.id
 	`, isCompleted).Scan(&rawTasks).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get tasks"})
 		return
@@ -63,8 +59,9 @@ func GetTasks(c *gin.Context) {
 		var subtasks []models.Task
 		if err := json.Unmarshal([]byte(rt.Subtasks), &subtasks); err != nil {
 			fmt.Printf("Error while unmarshalling JSON: %s", err)
-			subtasks = make([]models.Task, 0)
+			subtasks = []models.Task{}
 		}
+
 		task.Subtasks = subtasks
 		nestedTask = append(nestedTask, task)
 	}
@@ -74,13 +71,20 @@ func GetTasks(c *gin.Context) {
 func CreateTask(c *gin.Context) {
 	var task models.Task
 
-	// Bind the JSON data from the request body to the Task struct
 	if err := c.BindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	
+	// Check if parent_id exist
+	if task.ParentID.Valid {
+		var parentTask models.Task
+		if err := initializers.DB.First(&parentTask, task.ParentID).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Parent task does not exist"})
+			return
+		}
+	}
 
-	// Create the task in the database
 	if err := initializers.DB.Create(&task).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
 		return
@@ -93,19 +97,16 @@ func UpdateTask(c *gin.Context) {
 	var task models.Task
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	// Check if the task with the given ID exists
 	if err := initializers.DB.First(&task, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
 		return
 	}
 
-	// Bind the updated JSON data to the task struct
 	if err := c.BindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Update the task in the database
 	if err := initializers.DB.Save(&task).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
 		return
@@ -119,13 +120,11 @@ func DeleteTask(c *gin.Context) {
 		var task models.Task
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-		// Check if the task with the given ID exists
 		if err := initializers.DB.First(&task, id).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
 			return
 		}
 
-		// Delete the task from the database
 		if err := initializers.DB.Delete(&task).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete task"})
 			return

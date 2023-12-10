@@ -6,6 +6,6 @@ func GenerateRoutes(r *gin.Engine) {
 	r.GET("/tasks", GetTasks)
 	// r.GET("/tasks/:id", GetPost)
 	r.POST("/tasks", CreateTask)
-	r.PUT("/tasks/:id", UpdateTask)
+	r.PATCH("/tasks/:id", UpdateTask)
 	r.DELETE("/tasks/:id", DeleteTask)
 }
