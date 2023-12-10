@@ -45,6 +45,11 @@ func GetTasks(c *gin.Context) {
 		return
 	}
 
+	if rawTasks == nil {
+		c.JSON(http.StatusOK, []string{})
+		return 
+	}
+
 	// Parse Result
 	type NestedTask struct {
 		models.Task
