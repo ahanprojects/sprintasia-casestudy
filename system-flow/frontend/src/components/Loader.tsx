@@ -1,6 +1,6 @@
 export default function Loader() {
   return (
-    <div role="status" className="flex w-full justify-center">
+    <div role="status" className="flex w-full justify-center py-2">
       <svg
         aria-hidden="true"
         className="w-8 h-8 text-gray-200 animate-spin fill-blue-600"
