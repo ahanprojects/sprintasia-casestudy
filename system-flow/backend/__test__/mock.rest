@@ -1,0 +1,15 @@
+@host = http://localhost:3001
+###ZDdSdds
+GET {{host}}/tasks?completed=false HTTP/1.1
+
+###
+
+POST {{host}}/tasks HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Subtask 13",
+    "due": "0001-01-01T00:00:00Z",
+    "status": false,
+    "parent_id": 14
+}
