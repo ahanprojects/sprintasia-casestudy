@@ -16,7 +16,7 @@
 2. Setup .env `PORT` and `DB_URL`. See GORM documentation for more detail about the database setup.
 2. Build with `go build`
 3. Run `.\motion.exe`
-4. The backend will be hosted in port 3001
+4. The backend will be hosted in `PORT`
 
 #### Frontend
 1. Go to `system-flow/frontend`
