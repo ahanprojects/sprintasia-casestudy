@@ -34,7 +34,7 @@
    - created_at: timestamp
    - updated_at: timestamp
    - deleted_at: timestamp
-3. ERD
+  
 ![image](https://github.com/ahanprojects/sprintasia-casestudy/assets/68496198/fc93da9b-ff7f-499c-8f7e-7849a6b55543)
 
 ### How to run:
