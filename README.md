@@ -6,9 +6,37 @@
 2. Run `go run main.go`
 
 ## 2. System Flow
-- Frontend: React, Vite, Zod for validation
+- Frontend: React, Vite, TailwindCSS, Zod
 - Backend: Go, Gin, Gorm
 - Database: Online PostgreSQL (ElephantSQL)
+  
+### Features
+1. Add a task
+2. Show on-going taskslist
+3. Delete a task
+4. Update a task
+5. Tick to complete a task
+6. Show completed tasks
+
+#### Additional Features
+1. Deadline for each task with indicator if the task is due
+2. Subtasks, with add, update, delete, and tick functions.
+3. Progress bar for task with subtasks.
+
+### Architecture
+1. Communication between server (Go) and client (React) was done using REST
+2. The database has one table "tasks" with these columns:
+   - id: uint
+   - name: string
+   - due: timestamp
+   - completed: boolean
+   - parentid: null for task, uint for a subtask. This column referring to it's parent task's id.
+   - created_at: timestamp
+   - updated_at: timestamp
+   - deleted_at: timestamp
+3. ERD
+![image](https://github.com/ahanprojects/sprintasia-casestudy/assets/68496198/fc93da9b-ff7f-499c-8f7e-7849a6b55543)
+
 ### How to run:
 
 #### Backend
